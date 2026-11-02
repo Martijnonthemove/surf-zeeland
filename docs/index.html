@@ -1,0 +1,50 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Surf Zeeland">
+<meta name="theme-color" content="#0b3d5c"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon.png">
+<title>Surf Zeeland</title>
+<style>
+body{font-family:-apple-system,system-ui,sans-serif;margin:0;background:#f2f6f8;color:#123}
+header{background:#0b3d5c;color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px}
+h1{margin:0;font-size:22px}main{padding:12px}
+.card{background:#fff;border-radius:12px;padding:12px;margin-bottom:14px;box-shadow:0 1px 3px #0002}
+h2{margin:0 0 8px;font-size:18px}.day{font-weight:600;margin:10px 0 4px}
+.row{display:grid;grid-template-columns:44px 1fr 1fr 34px;gap:6px;font-size:13px;padding:5px 6px;border-radius:6px;margin:2px 0}
+.g{background:#b9f0c4}.m{background:#fff1b8}.b{background:#f4f4f4;color:#777}
+.btn{display:block;background:#0b7a5c;color:#fff;text-align:center;padding:12px;border-radius:10px;text-decoration:none;font-weight:600;margin:8px 0}
+code{background:#eee;padding:2px 4px;border-radius:4px;word-break:break-all}small{color:#567}
+</style></head><body>
+<header><h1>🏄 Surf Zeeland</h1><small style="color:#cde">Zwel: ECMWF/DWD golfmodellen · Wind: KNMI HARMONIE (ECMWF als terugval) via Open-Meteo</small></header>
+<main>
+<div class="card"><h2>🔔 Meldingen</h2>
+<p>Installeer de gratis app <b>ntfy</b> (App Store) en abonneer je op topic <code id="topic"></code></p>
+<a class="btn" id="sub" href="#">Abonneer in ntfy</a>
+<small>Je krijgt een seintje 24, 12 en 6 uur voor een goed surfvenster. Groen = alles goed, geel = bijna.</small></div>
+<div id="spots">Laden…</div></main>
+<script>
+const arc=(d,a,b)=>d!=null&&(a<=b?d>=a&&d<=b:d>=a||d<=b);
+const K=["N","NNO","NO","ONO","O","OZO","ZO","ZZO","Z","ZZW","ZW","WZW","W","WNW","NW","NNW"],k=d=>K[Math.round((d%360)/22.5)%16];
+function score(s,r){if(r.h==null||r.ws==null)return 0;let n=0;
+ if(r.h>=s.swell_height_min&&r.h<=s.swell_height_max)n++; if(r.p>=s.swell_period_min)n++;
+ if(arc(r.d,s.swell_dir_from,s.swell_dir_to))n++;
+ if(r.ws<=s.light_wind_kmh||(arc(r.wd,s.offshore_dir_from,s.offshore_dir_to)&&r.ws<=s.max_wind_kmh))n++; return n}
+async function spot(s){
+ const w=await (await fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${s.wave_point.lat}&longitude=${s.wave_point.lon}&hourly=swell_wave_height,swell_wave_direction,swell_wave_period,wave_height&forecast_days=5&timezone=Europe%2FAmsterdam`)).json();
+ const m=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${s.wind_point.lat}&longitude=${s.wind_point.lon}&hourly=wind_speed_10m,wind_direction_10m&models=knmi_seamless,ecmwf_ifs025&forecast_days=5&timezone=Europe%2FAmsterdam`)).json();
+ const H=m.hourly,wi=Object.fromEntries(H.time.map((t,i)=>[t,i])),f=(x,j)=>H[x+"_knmi_seamless"][j]??H[x+"_ecmwf_ifs025"][j];
+ let html=`<div class="card"><h2>${s.name}</h2>`,day="",now=new Date();
+ w.hourly.time.forEach((t,i)=>{const j=wi[t];if(j==null)return;const dte=new Date(t);if(dte<now-36e5)return;
+  const hr=dte.getHours();if(hr<7||hr>20||hr%3)return;
+  const r={h:w.hourly.swell_wave_height[i],d:w.hourly.swell_wave_direction[i],p:w.hourly.swell_wave_period[i],ws:f("wind_speed_10m",j),wd:f("wind_direction_10m",j)};
+  const d=dte.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"short"});
+  if(d!==day){html+=`<div class="day">${d}</div>`;day=d}
+  const sc=score(s,r),c=sc==4?"g":sc==3?"m":"b";
+  html+=`<div class="row ${c}"><b>${String(hr).padStart(2,"0")}u</b><span>🌊 ${r.h?.toFixed(1)} m ${r.p?.toFixed(0)}s ${k(r.d)}</span><span>💨 ${Math.round(r.ws)} km/u ${k(r.wd)}</span><span>${sc}/4</span></div>`});
+ return html+"</div>"}
+(async()=>{const c=await (await fetch("spots.json",{cache:"no-store"})).json();
+ document.getElementById("topic").textContent=c.ntfy_topic;
+ document.getElementById("sub").href="ntfy://ntfy.sh/"+c.ntfy_topic;
+ try{document.getElementById("spots").innerHTML=(await Promise.all(c.spots.map(spot))).join("")}
+ catch(e){document.getElementById("spots").textContent="Fout bij laden: "+e}})();
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
+</script></body></html>
