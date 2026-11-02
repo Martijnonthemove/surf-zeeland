@@ -71,7 +71,7 @@ def main():
             if key in state: continue
             a, b = start.astimezone(AMS), end.astimezone(AMS)
             msg = (f'{a:%a %d-%m %H:%M}–{b:%H:%M} (NL-tijd), over ~{round(hrs)} uur\n'
-                   f'Zwel {avg(c,"h"):.1f} m, {avg(c,"p"):.0f} s uit {k(avg(c,"d"))} ({avg(c,"d"):.0f}°)\n'
+                   f'Swell {avg(c,"h"):.1f} m, {avg(c,"p"):.0f} s uit {k(avg(c,"d"))} ({avg(c,"d"):.0f}°)\n'
                    f'Wind {avg(c,"ws"):.0f} km/u uit {k(avg(c,"wd"))}, vlagen {max(r["wg"] or 0 for r in c):.0f}')
             req = urllib.request.Request(f'https://ntfy.sh/{CFG["ntfy_topic"]}', data=msg.encode(),
                 headers={"Title": f'Surf alert {s["name"]} ({lead}u vooraf)'.encode("utf-8").decode("latin-1"),
