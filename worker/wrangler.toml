@@ -1,0 +1,10 @@
+name = "surf-zeeland"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+[triggers]
+crons = ["7 * * * *"]
+[[kv_namespaces]]
+binding = "SURF"
+id = "8f1f0470464d4054a4f5414e1ab3e33a"
+[vars]
+PUBLIC_URL = "https://surf-zeeland.martijnvdhelm.workers.dev/"

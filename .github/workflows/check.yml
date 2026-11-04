@@ -1,6 +1,6 @@
 name: Surf check
 on:
-  schedule: [{cron: "15 */3 * * *"}]
+  # schedule uitgeschakeld: de Cloudflare Worker doet nu de checks
   workflow_dispatch:
 permissions: {contents: write}
 concurrency: surf-check

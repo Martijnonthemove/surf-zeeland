@@ -1,0 +1,53 @@
+{
+  "ntfy_topic": "surf-zeeland-33d496e466",
+  "lead_times_hours": [
+    24,
+    12,
+    6
+  ],
+  "min_window_hours": 2,
+  "spots": [
+    {
+      "id": "domburg",
+      "name": "Domburg",
+      "wave_point": {
+        "lat": 51.58,
+        "lon": 3.45
+      },
+      "wind_point": {
+        "lat": 51.565,
+        "lon": 3.495
+      },
+      "swell_height_min": 0.8,
+      "swell_height_max": 2.5,
+      "swell_period_min": 7,
+      "swell_dir_from": 250,
+      "swell_dir_to": 20,
+      "offshore_dir_from": 90,
+      "offshore_dir_to": 200,
+      "light_wind_kmh": 12,
+      "max_wind_kmh": 30
+    },
+    {
+      "id": "renesse",
+      "name": "Renesse (Schouwen-Duiveland)",
+      "wave_point": {
+        "lat": 51.75,
+        "lon": 3.72
+      },
+      "wind_point": {
+        "lat": 51.735,
+        "lon": 3.76
+      },
+      "swell_height_min": 0.8,
+      "swell_height_max": 2.5,
+      "swell_period_min": 7,
+      "swell_dir_from": 260,
+      "swell_dir_to": 30,
+      "offshore_dir_from": 110,
+      "offshore_dir_to": 220,
+      "light_wind_kmh": 12,
+      "max_wind_kmh": 30
+    }
+  ]
+}
